@@ -12,7 +12,10 @@ def criar_indices(min_i, max_i, min_j, max_j):
 
 def gira_imagem(image, ang):
 
+    # matriz com o mesmo formato da matriz de imagem inteira de zero's
     image_ = np.zeros_like(image)
+
+    # transforma o angulo de graus para radianos
     rad = np.radians(ang)
 
     Xd = criar_indices(0, image.shape[0], 0, image.shape[1])
@@ -20,8 +23,6 @@ def gira_imagem(image, ang):
 
     T = np.array([[1, 0, image.shape[0]/2], [0, 1, image.shape[1]/2], [0, 0, 1]])
     R = np.array([[np.cos(rad), -np.sin(rad), 0], [np.sin(rad), np.cos(rad), 0], [0, 0,1]])
-    # R = np.array([[1, -np.sin(rad), 0], [np.sin(rad), 1, 0], [0, 0,1]])
-    # R = np.array([[1, -np.sin(rad), 0], [np.cos(rad), 1, 0], [0, 0,1]])
     T_ = np.array([[1, 0, -image.shape[0]/2], [0, 1, -image.shape[1]/2], [0, 0, 1]])
 
     E = T @ R @ T_
@@ -36,3 +37,24 @@ def gira_imagem(image, ang):
     image_[Xd[0,:], Xd[1,:], :] = image[X[0,:], X[1,:], :]
     return image_
 
+def delimita_angulo(ang):
+
+    if ang >= 365:
+        ang = 0
+    elif ang <= 0:
+        ang = 365
+    return ang
+
+def delimita_aumento(aum):
+    if abs(aum) <= 0.1:
+        if aum > 0:
+            aum = 0.1
+        else:
+            aum = -0.1
+    if abs(aum) >= 60:
+        if aum > 0:
+            aum = 60
+        else:
+            aum = -60
+
+    return aum
