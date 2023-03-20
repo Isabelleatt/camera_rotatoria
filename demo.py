@@ -10,21 +10,24 @@ def run():
     width = 320
     height = 240
     ang = 0
-    estado = 'padrao'
+    estado = 'padrao' # padrao, controle, expandir
     aum = 1
     escala = 1
-    salvar = input('Deseja gravar o video? (y/n)')
-    
+
+    # gravação de vídeo
+    salvar = input('Deseja gravar o video? (y/n) ')
     if salvar == "y":
         nome = input('Digite o nome do video: ') + '.mp4'
         writer = cv.VideoWriter(nome, cv.VideoWriter_fourcc(*'mp4v'), 20, (width,height))
 
+    # verifica se é possível abrir a câmera
     if not cap.isOpened():
         print("Não consegui abrir a câmera!")
         exit()
 
 
     while True:
+
         # Captura um frame da câmera
         ret, frame = cap.read()
 
@@ -36,6 +39,7 @@ def run():
         frame = cv.resize(frame, (width,height), interpolation =cv.INTER_AREA)
         image = np.array(frame).astype(float)/255
 
+        # aguarda a entrada de uma tecla
         key = cv.waitKey(1)
 
         # estilo de transformação
@@ -70,9 +74,9 @@ def run():
                 escala -= 0.1
 
         
-        aum = delimita_aumento(aum)
-        ang = delimita_angulo(ang)
-        escala = delimita_escala(escala)
+        aum = delimita_aumento(aum) # 0.1 <= aum <= 60
+        ang = delimita_angulo(ang) # 0 <= ang <= 365
+        escala = delimita_escala(escala) # 0.1 <= escala <= 10
             
         image_ = transforma_imagem(image, ang, escala, estado)
 
@@ -84,7 +88,6 @@ def run():
         
         if salvar == 'y':
             writer.write((image_* 255).astype(np.uint8))
-
 
 
     cap.release()
