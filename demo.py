@@ -4,10 +4,9 @@ import cv2 as cv
 
 
 def run():
-    # Essa função abre a câmera. Depois desta linha, a luz de câmera (se seu computador tiver) deve ligar.
+
     cap = cv.VideoCapture(0)
 
-    # Aqui, defino a largura e a altura da imagem com a qual quero trabalhar.
     width = 320
     height = 240
     ang = 0
@@ -29,17 +28,12 @@ def run():
         # Captura um frame da câmera
         ret, frame = cap.read()
 
-
-        # A variável `ret` indica se conseguimos capturar um frame
         if not ret:
             print("Não consegui capturar frame!")
             break
 
-        # Mudo o tamanho do meu frame para reduzir o processamento necessário
-        # nas próximas etapas
-        frame = cv.resize(frame, (width,height), interpolation =cv.INTER_AREA)
 
-        # A variável image é um np.array com shape=(width, height, colors)
+        frame = cv.resize(frame, (width,height), interpolation =cv.INTER_AREA)
         image = np.array(frame).astype(float)/255
 
         key = cv.waitKey(1)
@@ -47,31 +41,32 @@ def run():
         # estilo de transformação
         if key == ord('p'):
             estado = 'padrao'
+            escala = 1
         elif key == ord('r'):
             estado = 'controle'
             aum = 1
         elif key == ord('e'):
             estado = 'expandir'
-        elif key == ord('m'):
-            estado = 'magica'
 
+        # controle da rotação
         if estado =='controle':
-            if key == ord('a'):
+            if key == ord('a'): # gira para a esquerda
                 aum = abs(aum)
-            elif key == ord('d'):
+            elif key == ord('d'): # gira para a direita
                 aum = abs(aum) * -1
-            elif key == ord('w'):
+            elif key == ord('w'): # aumenta a velocidade
                 aum *= 1.25
-            elif key == ord('s'):
+            elif key == ord('s'): # diminui a velocidade
                 aum *= 0.75
             ang += aum
         else:
             ang += 1
-            
+        
+        # controle do zoom
         if estado == 'expandir':
-            if key == ord('i'):
+            if key == ord('i'): # zoom in
                 escala += 0.1
-            elif key == ord('o'):
+            elif key == ord('o'): # zoom out
                 escala -= 0.1
 
         
@@ -79,19 +74,11 @@ def run():
         ang = delimita_angulo(ang)
         escala = delimita_escala(escala)
             
-        if estado == 'expandir':
-            image_ = expandir_imagem(image, escala, ang)
-            # image_ = gira_imagem(image_, ang)
-        elif estado == 'magica':
-            image_ = imagem_magica(image, ang)
-        else:
-            image_ = gira_imagem(image, ang)
+        image_ = transforma_imagem(image, ang, escala, estado)
 
-
-        # Agora, mostrar a imagem na tela!
         cv.imshow('Minha Imagem!', image_)
         
-        # Se aperto 'q', encerro o loop
+        # encerra o loop
         if key == ord('q'):
             break
         
@@ -99,7 +86,7 @@ def run():
             writer.write((image_* 255).astype(np.uint8))
 
 
-    # Ao sair do loop, vamos devolver cuidadosamente os recursos ao sistema!
+
     cap.release()
     if salvar == 'y':
         writer.release()

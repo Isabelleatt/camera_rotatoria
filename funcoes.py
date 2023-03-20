@@ -13,26 +13,33 @@ def criar_indices(min_i, max_i, min_j, max_j):
     idx = np.vstack( (idx_i, idx_j) )
     return idx
 
-''' Função | gira uma imagem em um ângulo dado em graus, 
-    utilizando transformações lineares para encontrar a 
+''' Função | realiza a transformação da imagem a depender do tipo
+    enviado como argumento:
+    caso seja expandir, diminui ou aumenta a imagem de acordo com a imagem
+    e gira a imagem em um ângulo dado em graus, 
+    utilizando multiplicações matriciais para encontrar a 
     posição de cada pixel na imagem girada.
+    caso contrário, apenas realiza a rotação.
 '''
-def gira_imagem(image, ang):
 
-    # matriz com o mesmo formato da matriz de imagem inteira de zero's
+def transforma_imagem(image, ang, escala, tipo):
     image_ = np.zeros_like(image)
-
-    # transforma o angulo de graus para radianos
-    rad = np.radians(ang)
 
     Xd = criar_indices(0, image.shape[0], 0, image.shape[1])
     Xd = np.vstack ( (Xd, np.ones( Xd.shape[1]) ) )
 
+    rad = np.radians(ang)
+
     T = np.array([[1, 0, image.shape[0]/2], [0, 1, image.shape[1]/2], [0, 0, 1]])
     R = np.array([[np.cos(rad), -np.sin(rad), 0], [np.sin(rad), np.cos(rad), 0], [0, 0,1]])
     T_ = np.array([[1, 0, -image.shape[0]/2], [0, 1, -image.shape[1]/2], [0, 0, 1]])
-
-    E = T @ R @ T_
+    
+    if tipo == 'expandir':
+        S = np.array([[escala, 0, 0], [0, escala, 0], [0, 0, 1]])
+        E = T @ R @ S @ T_
+    else:
+        E = T @ R @ T_
+    
 
     X = np.linalg.inv(E) @ Xd
     X = X.astype(int) # posições tem que ser inteiros
@@ -72,33 +79,3 @@ def delimita_escala(escala):
         escala = 10
     return escala
 
-def expandir_imagem(image, escala, ang):
-    # realiza um zoom na imagem
-    # escala > 1: zoom in
-    # escala < 1: zoom out
-    image_ = np.zeros_like(image)
-    Xd = criar_indices(0, image.shape[0], 0, image.shape[1])
-    Xd = np.vstack ( (Xd, np.ones( Xd.shape[1]) ) )
-    rad = np.radians(ang)
-
-    T = np.array([[1, 0, image.shape[0]/2], [0, 1, image.shape[1]/2], [0, 0, 1]])
-    R = np.array([[np.cos(rad), -np.sin(rad), 0], [np.sin(rad), np.cos(rad), 0], [0, 0,1]])
-    S = np.array([[escala, 0, 0], [0, escala, 0], [0, 0, 1]])
-    T_ = np.array([[1, 0, -image.shape[0]/2], [0, 1, -image.shape[1]/2], [0, 0, 1]])
-
-    E = T @ R @ S @ T_
-
-    X = np.linalg.inv(E) @ Xd
-    X = X.astype(int) # posições tem que ser inteiros
-    Xd = Xd.astype(int)
-    filtro = (X[0,:] >=0) & (X[0,:] < image_.shape[0]) & (X[1,:] >=0) & (X[1,:] < image_.shape[1])
-    Xd = Xd[:,filtro]
-    X = X[:,filtro]
-
-    image_[Xd[0,:], Xd[1,:], :] = image[X[0,:], X[1,:], :]
-    return image_
-
-def imagem_magica(image, ang):
-    rad = np.radians(ang)
-    M = np.float32([[1, np.tan(rad), 0], [0, 1, 0]])
-    return cv.warpAffine(image, M, (image.shape[1], image.shape[0]))
