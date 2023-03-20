@@ -7,7 +7,7 @@ APS 3 - Álgebra Linear e Teoria da Informação - 2021.1
 
 ## Introdução
 
-Esse projeto consiste na aplicação de efeitos visuais na câmera do computador. Tais efeitos são resultados de transformações na imagem realizadas apartir de multiplicações matriciais.(???)
+Este projeto consiste em uma implementação em Python de uma função capaz de realizar transformações em imagens, utilizando operações matriciais para obter os resultados. A função permite a rotação da imagem em um ângulo definido pelo usuário, bem como a expansão ou diminuição da mesma através do ajuste de uma escala. Para isso, é utilizada uma matriz de índices 2D para percorrer todos os pixels da imagem e aplicar as transformações necessárias. Além disso, são feitas algumas verificações e limitações para garantir que a imagem resultante não tenha dimensões inválidas. O código também conta com algumas funções auxiliares para delimitar os valores de entrada e permitir a rotação contínua da imagem.
 
 # Transformação da imagem
 
