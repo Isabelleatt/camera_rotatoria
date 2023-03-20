@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.image as mpimg
 
-
+''' Função | cria uma matriz de índices 2D com todas as 
+    combinações possíveis de índices entre os limites 
+    mínimos e máximos fornecidos para as dimensões i e j.
+'''
 def criar_indices(min_i, max_i, min_j, max_j):
     import itertools
     L = list(itertools.product(range(min_i, max_i), range(min_j, max_j)))
@@ -10,6 +13,10 @@ def criar_indices(min_i, max_i, min_j, max_j):
     idx = np.vstack( (idx_i, idx_j) )
     return idx
 
+''' Função | gira uma imagem em um ângulo dado em graus, 
+    utilizando transformações lineares para encontrar a 
+    posição de cada pixel na imagem girada.
+'''
 def gira_imagem(image, ang):
 
     # matriz com o mesmo formato da matriz de imagem inteira de zero's
