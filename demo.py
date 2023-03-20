@@ -1,7 +1,5 @@
 import numpy as np
 from funcoes import *
-
-# Instalar a biblioteca cv2 pode ser um pouco demorado. Não deixe para ultima hora!
 import cv2 as cv
 
 
@@ -10,22 +8,27 @@ def run():
     cap = cv.VideoCapture(0)
 
     # Aqui, defino a largura e a altura da imagem com a qual quero trabalhar.
-    # Dica: imagens menores precisam de menos processamento!!!
     width = 320
     height = 240
     ang = 0
     estado = 'padrao'
     aum = 1
+    escala = 1
+    salvar = input('Deseja gravar o video? (y/n)')
+    
+    if salvar == "y":
+        nome = input('Digite o nome do video: ') + '.mp4'
+        writer = cv.VideoWriter(nome, cv.VideoWriter_fourcc(*'mp4v'), 20, (width,height))
 
-    # Talvez o programa não consiga abrir a câmera. Verifique se há outros dispositivos acessando sua câmera!
     if not cap.isOpened():
         print("Não consegui abrir a câmera!")
         exit()
 
-    # Esse loop é igual a um loop de jogo: ele encerra quando apertamos 'q' no teclado.
+
     while True:
         # Captura um frame da câmera
         ret, frame = cap.read()
+
 
         # A variável `ret` indica se conseguimos capturar um frame
         if not ret:
@@ -41,14 +44,17 @@ def run():
 
         key = cv.waitKey(1)
 
-        image_ = gira_imagem(image, ang)
+        # estilo de transformação
         if key == ord('p'):
             estado = 'padrao'
-        if key == ord('r'):
+        elif key == ord('r'):
             estado = 'controle'
             aum = 1
+        elif key == ord('e'):
+            estado = 'expandir'
+        elif key == ord('m'):
+            estado = 'magica'
 
-        
         if estado =='controle':
             if key == ord('a'):
                 aum = abs(aum)
@@ -59,25 +65,44 @@ def run():
             elif key == ord('s'):
                 aum *= 0.75
             ang += aum
- 
-        if estado == 'padrao':
+        else:
             ang += 1
+            
+        if estado == 'expandir':
+            if key == ord('i'):
+                escala += 0.1
+            elif key == ord('o'):
+                escala -= 0.1
+
         
         aum = delimita_aumento(aum)
         ang = delimita_angulo(ang)
+        escala = delimita_escala(escala)
             
+        if estado == 'expandir':
+            image_ = expandir_imagem(image, escala, ang)
+            # image_ = gira_imagem(image_, ang)
+        elif estado == 'magica':
+            image_ = imagem_magica(image, ang)
+        else:
+            image_ = gira_imagem(image, ang)
+
+
         # Agora, mostrar a imagem na tela!
         cv.imshow('Minha Imagem!', image_)
         
         # Se aperto 'q', encerro o loop
         if key == ord('q'):
             break
-
-        # aum = keyboard.on_press(on_press)
+        
+        if salvar == 'y':
+            writer.write((image_* 255).astype(np.uint8))
 
 
     # Ao sair do loop, vamos devolver cuidadosamente os recursos ao sistema!
     cap.release()
+    if salvar == 'y':
+        writer.release()
     cv.destroyAllWindows()
 
 run()
